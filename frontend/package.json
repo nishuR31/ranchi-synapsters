@@ -1,0 +1,29 @@
+{
+  "name": "ranchi-synapsters-frontend",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "clsx": "^2.1.0",
+    "cytoscape": "^3.27.0",
+    "framer-motion": "^10.18.0",
+    "react": "^18.2.0",
+    "react-cytoscapejs": "2.0.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
+  }
+}
