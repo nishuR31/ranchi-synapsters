@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: my-python-api
+    env: python
+    runtime: python-3.11.5
+
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
