@@ -1,0 +1,11 @@
+complaint_id,person_id,complaint_type,description,timestamp,severity
+CMP001,PERSON001,fraud,Unauthorized transactions from account,2024-01-15T10:00:00,high
+CMP002,PERSON002,sim_swap,SIM swapped without consent,2024-01-15T11:00:00,critical
+CMP003,PERSON003,phishing,Phishing attempt on bank account,2024-01-15T12:00:00,medium
+CMP004,PERSON004,extortion,Extortion calls threatening violence,2024-01-15T13:00:00,critical
+CMP005,PERSON001,identity_theft,Identity used for fraudulent loan,2024-01-15T14:00:00,high
+CMP006,PERSON005,call_spoofing,Spoofed calls from bank number,2024-01-15T15:00:00,medium
+CMP007,PERSON002,money_theft,Money stolen via unauthorized transfer,2024-01-15T16:00:00,high
+CMP008,PERSON006,vishing,Voice phishing attempt,2024-01-15T17:00:00,medium
+CMP009,PERSON007,lottery_fraud,Lottery fraud - fake prize claim,2024-01-15T18:00:00,low
+CMP010,PERSON008,romance_scam,Romance scam for money,2024-01-15T19:00:00,medium

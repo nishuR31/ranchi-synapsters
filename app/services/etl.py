@@ -3,7 +3,8 @@ from typing import Dict, List, Tuple
 from datetime import datetime
 import logging
 import re
-from app.database.graph import Neo4jConnection
+# from app.database.graph import Neo4jConnection
+from database.graph import Neo4jConnection
 
 logger = logging.getLogger(__name__)
 

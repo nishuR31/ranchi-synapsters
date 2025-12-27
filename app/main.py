@@ -2,9 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
-from app.config import settings
-from app.database.graph import get_db, close_db
-from app.routes import data, intelligence, system
+# from app.config import settings
+from config import settings
+# from app.database.graph import get_db, close_db
+from database.graph import get_db, close_db
+from routes import data, intelligence, system
+# from app.routes import data, intelligence, system
 
 # Configure logging
 logging.basicConfig(
@@ -74,11 +77,11 @@ async def root():
         }
     }
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host=settings.fastapi_host,
-        port=settings.fastapi_port,
-        reload=settings.debug
-    )
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(
+#         "main:app",
+#         host=settings.fastapi_host,
+#         port=settings.fastapi_port,
+#         reload=settings.debug
+#     )

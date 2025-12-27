@@ -22,17 +22,35 @@ export default function UploadPanel({ onUploaded }: Props) {
 
   const handleUpload = async () => {
     if (!file) {
-      setStatus("Select a CSV to upload");
+      setStatus("Select a CSV file first");
       return;
     }
     setLoading(true);
-    setStatus(null);
+    setStatus("Uploading...");
     try {
+      console.log("Uploading to API...");
       const res = await uploadDataset(fileType, file);
-      setStatus(`Uploaded ${file.name}: ${res.status}`);
-      onUploaded?.();
+      console.log("Upload response:", res);
+      if (res.status === "success") {
+        const inserted = res.ingestion_result?.inserted || 0;
+        const errors = res.ingestion_result?.errors || 0;
+        setStatus(`✓ ${file.name} uploaded! Inserted: ${inserted} rows, Errors: ${errors}`);
+        setFile(null);
+        onUploaded?.();
+      } else {
+        setStatus(`Status: ${res.status}`);
+      }
     } catch (err: any) {
-      setStatus(err?.message || "Upload failed");
+      console.error("Upload error:", err);
+      let errorMsg = "Upload failed";
+      if (err?.response?.data?.detail) {
+        errorMsg = typeof err.response.data.detail === 'string' 
+          ? err.response.data.detail 
+          : JSON.stringify(err.response.data.detail);
+      } else if (err?.message) {
+        errorMsg = err.message;
+      }
+      setStatus(`✗ Error: ${errorMsg}`);
     } finally {
       setLoading(false);
     }
@@ -59,14 +77,15 @@ export default function UploadPanel({ onUploaded }: Props) {
           type="file"
           accept=".csv"
           onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="text-slate-200 text-sm"
+          className="px-3 py-2 border border-slate-600 rounded-lg bg-slate-800 text-slate-200 text-sm cursor-pointer hover:bg-slate-700 transition"
         />
+        {file && <span className="text-sm text-emerald-400">📄 {file.name}</span>}
         <button
           onClick={handleUpload}
-          className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm"
-          disabled={loading}
+          className="px-6 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-semibold text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={loading || !file}
         >
-          {loading ? "Uploading…" : "Upload"}
+          {loading ? "Uploading…" : file ? " Upload" : " Select file first"}
         </button>
       </div>
       {status && <p className="text-sm text-slate-300 mt-2">{status}</p>}

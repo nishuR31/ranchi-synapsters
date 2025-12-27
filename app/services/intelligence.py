@@ -3,8 +3,10 @@ from typing import Dict, List, Tuple, Any, Optional
 from collections import defaultdict
 import logging
 from datetime import datetime
-from app.database.graph import Neo4jConnection
-from app.models.schemas import (
+# from app.database.graph import Neo4jConnection
+from database.graph import Neo4jConnection
+# from app.models.schemas import (
+from models.schemas import (
     FraudRing, Kingpin, EntityTimeline, TimelineEvent,
     AnomalyDetection, RiskAssessment, RiskLevel,
     GraphSnapshot, GraphNode, GraphEdge
@@ -107,13 +109,9 @@ class IntelligenceEngine:
             query = """
             MATCH (n1)-[r]->(n2)
             WHERE type(r) IN ['MADE', 'SENT']
-            RETURN n1.phone_number as from_node, n2.phone_number as to_node, 
+            RETURN coalesce(n1.phone_number, n1.account_number, toString(id(n1))) as from_node,
+                   coalesce(n2.phone_number, n2.account_number, toString(id(n2))) as to_node, 
                    type(r) as relation_type, r.amount as amount, 
-                   r.duration as duration, r.timestamp as timestamp
-            UNION ALL
-            MATCH (b1:BankAccount)-[r:SENT]->(b2:BankAccount)
-            RETURN b1.account_number as from_node, b2.account_number as to_node,
-                   type(r) as relation_type, r.amount as amount,
                    r.duration as duration, r.timestamp as timestamp
             """
             
@@ -129,13 +127,19 @@ class IntelligenceEngine:
                 to_node = record.get('to_node', '')
                 relation = record.get('relation_type', '')
                 
+                if not from_node or not to_node:
+                    continue
+                
                 G.add_edge(from_node, to_node, weight=1)
                 
                 if relation == 'SENT':
                     amount = record.get('amount', 0)
-                    total_money[f"{from_node}-{to_node}"] += amount
+                    if amount:
+                        total_money[f"{from_node}-{to_node}"] += float(amount)
                 elif relation == 'MADE':
-                    call_counts[f"{from_node}-{to_node}"] += 1
+                    duration = record.get('duration', 0)
+                    if duration:
+                        call_counts[f"{from_node}-{to_node}"] += int(duration)
             
             # Detect communities
             if G.number_of_nodes() > 0:
@@ -187,10 +191,10 @@ class IntelligenceEngine:
         """Identify kingpins using PageRank and centrality measures"""
         try:
             query = """
-            MATCH (n)-[r]->(m)
+            MATCH (n1)-[r]->(n2)
             WHERE type(r) IN ['MADE', 'SENT', 'USES', 'OWNS', 'RUNS_ON']
-            RETURN n.phone_number as from_node, m.phone_number as to_node,
-                   n.account_number as from_acc, m.account_number as to_acc,
+            RETURN coalesce(n1.phone_number, n1.account_number, toString(id(n1))) as from_node,
+                   coalesce(n2.phone_number, n2.account_number, toString(id(n2))) as to_node,
                    type(r) as relation
             """
             
@@ -199,9 +203,10 @@ class IntelligenceEngine:
             # Build NetworkX graph
             G = nx.DiGraph()
             for record in records:
-                from_node = record.get('from_node') or record.get('from_acc') or 'unknown'
-                to_node = record.get('to_node') or record.get('to_acc') or 'unknown'
-                G.add_edge(from_node, to_node)
+                from_node = record.get('from_node')
+                to_node = record.get('to_node')
+                if from_node and to_node:
+                    G.add_edge(from_node, to_node)
             
             if G.number_of_nodes() == 0:
                 return []

@@ -10,9 +10,8 @@ import type {
 } from "./types";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE || "http://localhost:8000",
+  baseURL: import.meta.env.VITE_ENV==="dev"? "http://localhost:8000":import.meta.env.VITE_API_BASE,
 });
-
 export async function fetchGraphStats(): Promise<GraphStats> {
   const { data } = await api.get<GraphStats>("/api/v1/system/graph/stats");
   return data;
@@ -62,12 +61,21 @@ export async function fetchAnomalies(
 
 export async function uploadDataset(fileType: string, file: File) {
   const form = new FormData();
-  form.append("file_type", fileType);
   form.append("file", file);
-  const { data } = await api.post("/api/v1/data/upload", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-  return data;
+  try {
+    const response = await api.post("/api/v1/data/upload", form, {
+      params: { file_type: fileType },
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: 60000,
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error("Upload error:", error);
+    if (error.response?.status === 500) {
+      throw new Error(error.response?.data?.detail || "Server error during upload");
+    }
+    throw error;
+  }
 }
 
 export function formatNumber(num: number | undefined, decimals = 0): string {

@@ -1,10 +1,14 @@
 from fastapi import APIRouter, UploadFile, File, Query, HTTPException
 from typing import List
 import os
-from app.database.graph import get_db
-from app.services.etl import ETLPipeline
-from app.config import settings
-from app.models.schemas import (
+# from app.database.graph import get_db
+from database.graph import get_db
+# from app.services.etl import ETLPipeline
+from services.etl import ETLPipeline
+# from app.config import settings
+from config import settings
+# from app.models.schemas import (
+from models.schemas import (
     FraudRing, Kingpin, EntityTimeline, AnomalyDetection, RiskAssessment
 )
 import logging
@@ -33,8 +37,8 @@ async def upload_data(
             raise HTTPException(status_code=400, detail=f"Invalid file_type: {file_type}")
         
         # Save uploaded file
-        os.makedirs(settings.upload_dir, exist_ok=True)
-        filepath = os.path.join(settings.upload_dir, file.filename)
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+        filepath = os.path.join(settings.UPLOAD_DIR, file.filename)
         
         with open(filepath, "wb") as f:
             contents = await file.read()
