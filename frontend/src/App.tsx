@@ -61,7 +61,7 @@ function App() {
               Ranchi Synapsters
             </h1>
             <p className="text-slate-400 mt-2">
-              Graph+AI driven intel for fraud rings, kingpins, and money trails
+              Graph driven intel for fraud rings, kingpins, and money trails
             </p>
           </div>
           <div className="flex gap-3">
